@@ -1,53 +1,61 @@
-import { Metadata } from "next";
-import ThumbnailDownloader from "./thumbnail-downloader";
+"use client";
 
-export const metadata: Metadata = {
-  title: "YouTube Thumbnail Downloader – Free, HD & Fast",
-  description:
-    "Download YouTube video thumbnails in Full HD (1080p/4K). Fast, free, simple YouTube Thumbnail Downloader. No ads, no limits.",
-  keywords: [
-    "youtube thumbnail downloader",
-    "download youtube thumbnail",
-    "yt thumbnail",
-    "4k thumbnail",
-    "hd thumbnail",
-  ],
-  openGraph: {
-    title: "YouTube Thumbnail Downloader – HD & 4K",
-    description:
-      "Fast, free YouTube Thumbnail Downloader. Save thumbnails in HD, 1080p, 4K.",
-    type: "website",
-    url: "https://yourdomain.com/",
-  },
-};
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
-export default function HomePage() {
+export default function AdminDashboard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAdmin() {
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user;
+
+      if (!user) return router.push("/login");
+
+      const { data: adminData } = await supabase
+        .from("admins")
+        .select("*")
+        .eq("uid", user.id)
+        .single();
+
+      if (!adminData) return router.push("/login");
+
+      setLoading(false);
+    }
+
+    checkAdmin();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center text-xl mt-20">Checking admin…</div>;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white">
-      {/* HERO SECTION */}
-      <div className="max-w-3xl mx-auto pt-24 px-6 text-center">
-        <h1 className="text-4xl font-bold leading-tight">
-          Download YouTube Thumbnails in <span className="text-blue-600">HD</span>
-        </h1>
-        <p className="mt-4 text-gray-600 text-lg">
-          Fast, free & simple YouTube Thumbnail Downloader. Paste your video URL and save thumbnails instantly.
-        </p>
+    <div>
+      <h1 className="text-3xl font-bold mb-6">Welcome, Admin 👋</h1>
 
-        {/* Thumbnail Component */}
-        <div className="mt-10">
-          <ThumbnailDownloader />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="p-6 bg-white rounded-xl shadow border">
+          <h2 className="text-xl font-bold mb-2">Blogs</h2>
+          <p className="text-gray-600">Manage all blog articles</p>
+          <a href="/admin/blogs" className="text-blue-600 underline">Open</a>
+        </div>
+
+        <div className="p-6 bg-white rounded-xl shadow border">
+          <h2 className="text-xl font-bold mb-2">Materials</h2>
+          <p className="text-gray-600">Manage material resources</p>
+          <a href="/admin/materials" className="text-blue-600 underline">Open</a>
+        </div>
+
+        <div className="p-6 bg-white rounded-xl shadow border">
+          <h2 className="text-xl font-bold mb-2">Templates</h2>
+          <p className="text-gray-600">Manage Canva templates</p>
+          <a href="/admin/templates" className="text-blue-600 underline">Open</a>
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer className="mt-20 border-t py-8 bg-gray-50 text-center text-gray-600">
-        <p className="text-sm">© 2025 YourWebsiteName. All rights reserved.</p>
-        <div className="flex justify-center gap-6 mt-4 text-sm">
-          <a href="/blog" className="hover:text-black">Blog</a>
-          <a href="/materials" className="hover:text-black">Materials</a>
-          <a href="/privacy-policy" className="hover:text-black">Privacy Policy</a>
-        </div>
-      </footer>
     </div>
   );
 }
