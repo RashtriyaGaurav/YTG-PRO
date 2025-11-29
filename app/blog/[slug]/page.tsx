@@ -1,7 +1,11 @@
 import { supabase } from "@/lib/supabase";
 
-export default async function BlogPost({ params }) {
-  const { slug } = await params;
+interface BlogParams {
+  params: { slug: string };
+}
+
+export default async function BlogPost({ params }: BlogParams) {
+  const slug = params.slug;
 
   const { data: blog } = await supabase
     .from("blogs")

@@ -1,7 +1,12 @@
 import { supabase } from "@/lib/supabase";
 
-export default async function MaterialPage({ params }) {
-  const { slug } = await params;
+interface MaterialParams {
+  params: { slug: string };
+}
+
+export default async function MaterialPage({ params }: MaterialParams) {
+  const slug = params.slug;
+
 
   const { data: material } = await supabase
     .from("materials")
